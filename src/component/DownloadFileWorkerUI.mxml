@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         implements="worker.util.IDownloadFileWorkerUIBinder">
+
+    <fx:Script>
+		<![CDATA[
+        import mx.controls.Alert;
+
+        import worker.util.IDownloadFileWorker;
+
+        private var _downloader:IDownloadFileWorker;
+
+        [Bindable]
+        public function get downloader():IDownloadFileWorker {
+            return _downloader;
+        }
+
+        public function set downloader(v:IDownloadFileWorker):void {
+            _downloader = v;
+        }
+
+        [Bindable]
+        private var _progressLabel:String = "CurrentProgress 0%";
+
+        public function onProgress(event:ProgressEvent):void {
+            var percentComplete:Number = event.bytesLoaded * 100 / event.bytesTotal;
+
+            progressBarFormat.fractionalDigits = downloader.fileDescriptor.progressPrecision;
+            progressBar.setProgress(percentComplete, 100);
+
+            _progressLabel = progressBarFormat.format(percentComplete) + "% complete";
+        }
+
+        public function onError(event:ErrorEvent):void {
+            unloadWorker();
+            Alert.show(event.text, "Error: " + (event.errorID == 0) ? "" : event.errorID.toString());
+        }
+
+        public function onCompleted(event:Event):void {
+            unloadWorker();
+        }
+
+        public function unloadWorker():void {
+            this.enabled = false;
+            downloader.terminate();
+        }
+        ]]>
+	</fx:Script>
+
+    <fx:Declarations>
+        <s:NumberFormatter id="progressBarFormat"
+                           fractionalDigits="0"/>
+    </fx:Declarations>
+
+    <s:layout>
+        <s:VerticalLayout horizontalAlign="center"/>
+    </s:layout>
+
+    <s:Label text="{downloader.fileDescriptor.fileUrl}" color="0xFFFFFF"/>
+
+    <s:HGroup verticalAlign="middle" horizontalAlign="center">
+        <mx:ProgressBar id="progressBar" labelPlacement="center" chromeColor="red"
+                        minimum="0" visible="true" maximum="100" label="{_progressLabel}"
+                        direction="right" mode="manual" width="300"/>
+    </s:HGroup>
+
+    <s:CheckBox id="useCacheCB" label="useCache" color="0xFFFFFF"
+                selected="{downloader.useCache}"
+                change="downloader.useCache = useCacheCB.selected"
+                enabled="{!downloader.isRunning}"/>
+
+    <s:HGroup verticalAlign="middle" id="controlGroup">
+        <s:Button id="startBtn" label="Start" click="downloader.start()" enabled="{!downloader.isRunning}"/>
+        <s:Button id="pauseBtn" label="Pause" click="downloader.pause()"
+                  enabled="{!startBtn.enabled &amp;&amp; downloader.isResumable &amp;&amp; !downloader.isPaused}"/>
+        <s:Button id="resumeBtn" label="Resume" click="downloader.resume()" enabled="{downloader.isPaused}"/>
+        <s:Button id="terminateBtn" label="Terminate" click="unloadWorker()" enabled="{!downloader.isTerminated}"/>
+    </s:HGroup>
+
+</s:Group>

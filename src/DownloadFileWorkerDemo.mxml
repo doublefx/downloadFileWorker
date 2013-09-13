@@ -1,89 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx"
-					   preinitialize="preinitializeHandler(event)"
-					   width="800" height="600" 
-					   color="0x000000" backgroundColor="0x000000">
-	<fx:Script><![CDATA[
-		import mx.controls.Alert;
-		import mx.events.FlexEvent;
-		
-		import worker.DownloadFileWorker;
-		import worker.util.IDownloadFileWorker;
-		import worker.vo.DownloadFileDescriptor;
-		
-		private var sdkZipDir:File;
-		
-		[Bindable]
-		private var flexSDKDownloader:IDownloadFileWorker;
-		
-		private static const sdkUrl:String = "http://www.motorlogy.com/apache/flex/4.10.0/binaries/apache-flex-sdk-4.10.0-bin.zip";
-		
-		private function preinitializeHandler(event:FlexEvent):void {
-			createCache();
-			
-			var fileTarget:File = sdkZipDir.resolvePath("flexSDK_4.10.zip");	
-			var flexSDKDescriptor:DownloadFileDescriptor = new DownloadFileDescriptor(sdkUrl, fileTarget.nativePath, 1);
-			
-			flexSDKDownloader = DownloadFileWorker.create(flexSDKDescriptor, onProgress, onError, onCompleted);
-		}		
-		
-		private function onProgress(event:ProgressEvent):void {
-			var downloader:IDownloadFileWorker = event.currentTarget as IDownloadFileWorker;
-			
-			var percentComplete:Number = event.bytesLoaded * 100 / event.bytesTotal;
-			progressBar.setProgress(percentComplete, 100);
-			
-			progressBarFormat.fractionalDigits = downloader.fileDescriptor.progressPrecision;
-			progressBar.label = progressBarFormat.format(percentComplete) + "% complete";
-		}	
-		
-		private function onError(event:ErrorEvent):void {			
-			flexSDKDownloader.terminate();
-			Alert.show(event.text, "Error: " + (event.errorID == 0) ? "" : event.errorID.toString());
-		}		
-				
-		private function onCompleted(event:Event):void {
-			flexSDKDownloader.terminate();
-		}
-		
-		private function createCache():void {						
-			sdkZipDir = File.desktopDirectory.resolvePath("flexSDKs/zip");
-			if (!sdkZipDir.exists)
-				sdkZipDir.createDirectory();
-		}
-		
-	]]></fx:Script>
-	
-	<fx:Declarations>
-		<s:NumberFormatter id="progressBarFormat"
-						   fractionalDigits="0"/>
-	</fx:Declarations>
-	
-	<s:layout>
-		<s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
-	</s:layout>
-	
-	<s:HGroup verticalAlign="middle" horizontalAlign="center">
-		<mx:ProgressBar id="progressBar" labelPlacement="center" chromeColor="red"
-						minimum="0" visible="true" maximum="100" label="CurrentProgress 0%" 
-						direction="right" mode="manual" width="300"/>		
-	</s:HGroup>
-	
-	<s:VGroup color="0xFFFFFF">
-		<s:CheckBox id="useCacheCB" label="useCache" 
-					selected="{flexSDKDownloader.useCache}" 
-					change="flexSDKDownloader.useCache = useCacheCB.selected" 
-					enabled="{!flexSDKDownloader.isRunning}"/>
-	</s:VGroup>
-	
-	<s:HGroup verticalAlign="middle">
-		<s:Button id="startBtn" label="Start" click="flexSDKDownloader.start()" enabled="{!flexSDKDownloader.isRunning}"/>
-		<s:Button id="pauseBtn" label="Pause" click="flexSDKDownloader.pause()" enabled="{!startBtn.enabled &amp;&amp; !flexSDKDownloader.isPaused}"/>
-		<s:Button id="resumeBtn" label="Resume" click="flexSDKDownloader.resume()" enabled="{flexSDKDownloader.isPaused}"/>
-		<s:Button id="terminateBtn" label="Terminate" click="flexSDKDownloader.terminate()" enabled="{!flexSDKDownloader.isTerminated}"/>
-	</s:HGroup>
-	
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+                       xmlns:s="library://ns.adobe.com/flex/spark"
+                       xmlns:component="component.*"
+                       windowComplete="windowCompleteHandler(event)"
+                       width="800" height="600"
+                       color="0x000000"
+                       backgroundColor="0x000000">
+
+    <fx:Script><![CDATA[
+        import mx.events.AIREvent;
+
+        import worker.util.DownloadFileWorkerFactory;
+
+        private function windowCompleteHandler(event:AIREvent):void {
+
+            // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges").
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexDownloaderUI);
+
+            // Create a DownloadFileWorker for file on a server without resuming capabilities (No "Accept-Ranges").
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI);
+        }
+        ]]></fx:Script>
+
+    <s:layout>
+        <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
+    </s:layout>
+
+    <component:DownloadFileWorkerUI id="flexDownloaderUI"/>
+    <s:Rect height="50"/>
+    <component:DownloadFileWorkerUI id="utorrentDownloaderUI"/>
+
 </s:WindowedApplication>
 

@@ -5,20 +5,20 @@
  *     - Members in this class will be removed when a worker is deleted.
  *******************************************************************************************************************************************/
 
-package  
-{
-	
-	import flash.utils.ByteArray;
-	
-	public class WorkerManager
-	{
-		
-		[Embed(source="../workerswfs/worker/DownloadFileWorker.swf", mimeType="application/octet-stream")]
-		private static var worker_DownloadFileWorker_ByteClass:Class;
-		public static function get downloadFileWorker():ByteArray
-		{
-			return new worker_DownloadFileWorker_ByteClass();
-		}
-		
-	}
+package {
+
+import flash.utils.ByteArray;
+
+public class WorkerManager {
+
+
+    [Embed(source="../workerswfs/worker/DownloadFileWorker.swf", mimeType="application/octet-stream")]
+    private static var worker_DownloadFileWorker_ByteClass:Class;
+
+    public static function get worker_DownloadFileWorker():ByteArray {
+        return new worker_DownloadFileWorker_ByteClass();
+    }
+
+
+}
 }

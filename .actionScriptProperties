@@ -19,7 +19,7 @@
     </application>
   </applications>
   <modules/>
-  <workers>
+  <workers managerFilePath="src/WorkerManager.as">
     <worker embed="true" path="src/worker/DownloadFileWorker.as"/>
   </workers>
   <buildCSSFiles/>
@@ -38,4 +38,3 @@
     </buildTarget>
   </buildTargets>
 </actionScriptProperties>
-

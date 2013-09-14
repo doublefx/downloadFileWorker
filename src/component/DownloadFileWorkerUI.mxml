@@ -76,7 +76,7 @@
         <s:Button id="pauseBtn" label="Pause" click="downloader.pause()"
                   enabled="{!startBtn.enabled &amp;&amp; downloader.isResumable &amp;&amp; !downloader.isPaused}"/>
         <s:Button id="resumeBtn" label="Resume" click="downloader.resume()" enabled="{downloader.isPaused}"/>
-        <s:Button id="terminateBtn" label="Terminate" click="unloadWorker()" enabled="{!downloader.isTerminated}"/>
+        <s:Button id="terminateBtn" label="Terminate" click="unloadWorker()" enabled="{downloader.isRunning}"/>
     </s:HGroup>
 
 </s:Group>

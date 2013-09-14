@@ -21,8 +21,6 @@ public interface IDownloadFileWorker {
 
     function get isPaused():Boolean;
 
-    function get isTerminated():Boolean;
-
     function get fileDescriptor():DownloadFileDescriptor;
 }
 }

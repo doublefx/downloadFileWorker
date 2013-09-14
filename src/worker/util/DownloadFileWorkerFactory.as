@@ -14,7 +14,7 @@ public class DownloadFileWorkerFactory {
     private static const UTORRENT_FILE_TARGET:String = "utorrent.exe";
 
     private static var __cacheDir:File;
-    private static var __initializer:* = initializer();
+    private static var __initialized:Boolean = initialize();
 
     public static function create(kind:String, bindTo:IDownloadFileWorkerUIBinder = null):IDownloadFileWorker {
         var fileDescriptor:DownloadFileDescriptor;
@@ -45,9 +45,11 @@ public class DownloadFileWorkerFactory {
         return downloader;
     }
 
-    private static function initializer():void {
+    private static function initialize():Boolean {
         DownloadFileWorkerRegisterUtil.registerClassAliases();
         createCache();
+
+        return true;
     }
 
     private static function createCache():void {

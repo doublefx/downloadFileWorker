@@ -31,7 +31,6 @@ public class DownloadFileProxy extends EventDispatcher implements IDownloadFileW
     private var _isResumable:Boolean;
     private var _isPaused:Boolean;
     private var _isRunning:Boolean;
-    private var _isTerminated:Boolean = true;
 
     public function DownloadFileProxy(workerName:String, downloadFileDescriptor:DownloadFileDescriptor, onProgress:Function = null, onError:Function = null, onCompleted:Function = null):void {
 
@@ -49,7 +48,6 @@ public class DownloadFileProxy extends EventDispatcher implements IDownloadFileW
             case WorkerState.RUNNING:
             {
                 isRunning = true;
-                isTerminated = false;
 
                 addEventListeners();
 
@@ -61,7 +59,6 @@ public class DownloadFileProxy extends EventDispatcher implements IDownloadFileW
             case WorkerState.TERMINATED:
             {
                 isRunning = false;
-                isTerminated = true;
 
                 removeListeners();
 
@@ -134,16 +131,8 @@ public class DownloadFileProxy extends EventDispatcher implements IDownloadFileW
         _useCache = v;
     }
 
-    public function get isTerminated():Boolean {
-        return _isTerminated;
-    }
-
-    public function set isTerminated(v:Boolean):void {
-        _isTerminated = v;
-    }
-
     public function get isResumable():Boolean {
-        return !_isTerminated && _isRunning && _isResumable;
+        return _isRunning && _isResumable;
     }
 
     public function set isResumable(v:Boolean):void {

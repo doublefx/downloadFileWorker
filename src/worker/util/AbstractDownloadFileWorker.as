@@ -22,6 +22,8 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
 
     override protected function initialize():void {
 
+        DownloadFileWorkerRegisterUtil.registerClassAliases();
+
         workerName = Worker.current.getSharedProperty("workerName");
 
         // Get the MessageChannel objects to use for communicating between workers

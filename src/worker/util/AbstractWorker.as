@@ -6,7 +6,6 @@ public class AbstractWorker extends Sprite {
 
     public function AbstractWorker() {
         super();
-        DownloadFileWorkerRegisterUtil.registerClassAliases();
         initialize();
     }
 

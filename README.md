@@ -3,6 +3,8 @@ downloadFileWorker
 
 Simple AIR application using a worker to download files with resuming capabilities
 
+![ScreenShot](https://raw.github.com/doublefx/downloadFileWorker/master/DownloadFileWorkerDemo.jpg)
+
 This Demo use a Factory (DownloadFileWorkerFactory) to download 2 files (The Apache Flex SDK 4.10 and uTorrent).
 The Apache Flex SDK 4.10 is on a server with resuming capabilities, uTorrent isn't.
 
@@ -18,7 +20,7 @@ currently implemented in DownloadFileWorkerFactory, basically, it can be done in
 
 ```ActionScript
 var fileDescriptor:DownloadFileDescriptor = new DownloadFileDescriptor(url, fileTarget);
-var downloader:IDownloadFileWorker = new DownloadFileProxy(ID, fileDescriptor);
+var downloader:IDownloadFileWorker = new DownloadFileWorkerProxy(ID, fileDescriptor);
 ```
 
 You can then add event listeners to the downloader to receive ProgressEvent.PROGRESS, ErrorEvent.ERROR and

@@ -1,8 +1,10 @@
 package worker.util {
+import flash.events.IEventDispatcher;
+
 import worker.vo.DownloadFileDescriptor;
 
 [Bindable]
-public interface IDownloadFileWorker {
+public interface IDownloadFileWorker extends IEventDispatcher {
     function start():void;
 
     function terminate():Boolean;

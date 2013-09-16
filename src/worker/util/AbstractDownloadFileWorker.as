@@ -6,6 +6,7 @@ import flash.system.Worker;
 import worker.vo.DownloadFileDescriptor;
 
 public class AbstractDownloadFileWorker extends AbstractWorker {
+
     public static const DOWNLOAD_MESSAGE:String = "DOWNLOAD_MESSAGE";
     public static const USE_CACHE_MESSAGE:String = "USE_CACHE_MESSAGE";
     public static const PAUSE_MESSAGE:String = "PAUSE_MESSAGE";
@@ -13,12 +14,18 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     public static const ABORT_MESSAGE:String = "ABORT_MESSAGE";
 
     public static const RESUMABLE_STATUS:String = "RESUMABLE_STATUS";
-
+	
+	protected var hasMessage:Boolean;
+	
     private var _commandChannel:MessageChannel;
     private var _statusChannel:MessageChannel;
     private var _progressChannel:MessageChannel;
     private var _errorChannel:MessageChannel;
     private var _resultChannel:MessageChannel;
+
+    function AbstractDownloadFileWorker(protectedConstructor:AbstractDownloadFileWorker):void {
+        super(this);
+    }
 
     override protected function initialize():void {
 
@@ -38,8 +45,7 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 
     protected function handleCommandMessage(event:Event):void {
-        if (!_commandChannel.messageAvailable)
-            return;
+		hasMessage = _commandChannel.messageAvailable;
     }
 
     protected function getMessage(waitFor:Boolean = false):* {
@@ -63,4 +69,3 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 }
 }
-

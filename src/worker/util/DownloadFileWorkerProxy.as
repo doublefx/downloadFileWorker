@@ -11,7 +11,7 @@ import flash.system.WorkerState;
 import worker.vo.DownloadFileDescriptor;
 
 [Bindable]
-public class DownloadFileProxy extends EventDispatcher implements IDownloadFileWorker {
+public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloadFileWorker {
 
     private var _worker:Worker;
     private var _statusChannel:MessageChannel;
@@ -32,7 +32,7 @@ public class DownloadFileProxy extends EventDispatcher implements IDownloadFileW
     private var _isPaused:Boolean;
     private var _isRunning:Boolean;
 
-    public function DownloadFileProxy(workerName:String, downloadFileDescriptor:DownloadFileDescriptor, onProgress:Function = null, onError:Function = null, onCompleted:Function = null):void {
+    public function DownloadFileWorkerProxy(workerName:String, downloadFileDescriptor:DownloadFileDescriptor, onProgress:Function = null, onError:Function = null, onCompleted:Function = null):void {
 
         _downloadFileDescriptor = downloadFileDescriptor;
         _onProgress = onProgress;

@@ -26,13 +26,17 @@ public class DownloadFileWorkerFactory {
             case FLEX_SDK:
                 fileTarget = __cacheDir.resolvePath(FLEX_SDK_FILE_TARGET);
                 fileDescriptor = new DownloadFileDescriptor(FLEX_SDK_URL, fileTarget.nativePath, 1);
-                downloader = bindTo ? new DownloadFileProxy(FLEX_SDK, fileDescriptor, bindTo.onProgress, bindTo.onError, bindTo.onCompleted) : new DownloadFileProxy(FLEX_SDK, fileDescriptor);
+                downloader = bindTo ?
+                        new DownloadFileWorkerProxy(FLEX_SDK, fileDescriptor, bindTo.onProgress, bindTo.onError, bindTo.onCompleted) :
+                        new DownloadFileWorkerProxy(FLEX_SDK, fileDescriptor);
                 break;
 
             case UTORRENT:
                 fileTarget = __cacheDir.resolvePath(UTORRENT_FILE_TARGET);
                 fileDescriptor = new DownloadFileDescriptor(UTORRENT_URL, fileTarget.nativePath, 0);
-                downloader = bindTo ? new DownloadFileProxy(UTORRENT, fileDescriptor, bindTo.onProgress, bindTo.onError, bindTo.onCompleted) : new DownloadFileProxy(UTORRENT, fileDescriptor);
+                downloader = bindTo ?
+                        new DownloadFileWorkerProxy(UTORRENT, fileDescriptor, bindTo.onProgress, bindTo.onError, bindTo.onCompleted) :
+                        new DownloadFileWorkerProxy(UTORRENT, fileDescriptor);
                 break;
 
             default:

@@ -33,54 +33,59 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
     private var _paused:Boolean;
     private var _intervalId:uint;
 
+    function DownloadFileWorker():void {
+		super(this);
+    }
+
     override protected function handleCommandMessage(event:Event):void {
         super.handleCommandMessage(event);
 
-        try {
-            var message:* = getMessage();
-
-            if (!_loader && message is Array && message.length == 2 && message[0] == DOWNLOAD_MESSAGE && message[1] is DownloadFileDescriptor) {
-                _fileDescriptor = message[1] as DownloadFileDescriptor;
-            } else {
-
-                switch (message) {
-                    case USE_CACHE_MESSAGE:
-                    {
-                        _useCache = getMessage();
-                        break;
-                    }
-                    case PAUSE_MESSAGE:
-                    {
-                        pause();
-                        while (_paused) {
-                            var msg:* = getMessage(true);
-                            if (msg == RESUME_MESSAGE || msg == ABORT_MESSAGE) {
-                                if (msg == RESUME_MESSAGE) {
-                                    resume();
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    case ABORT_MESSAGE:
-                    {
-                        destroy();
-                        return;
-                    }
-
-                    default:
-                    {
-                        return;
-                    }
-                }
-            }
-
-            if (_fileDescriptor && !_loader)
-                copyOrDownload();
-
-        } catch (error:Error) {
-            sendError(error);
-        }
+		if (hasMessage)
+	        try {
+	            var message:* = getMessage();
+	
+	            if (!_loader && message is Array && message.length == 2 && message[0] == DOWNLOAD_MESSAGE && message[1] is DownloadFileDescriptor) {
+	                _fileDescriptor = message[1] as DownloadFileDescriptor;
+	            } else {
+	
+	                switch (message) {
+	                    case USE_CACHE_MESSAGE:
+	                    {
+	                        _useCache = getMessage();
+	                        break;
+	                    }
+	                    case PAUSE_MESSAGE:
+	                    {
+	                        pause();
+	                        while (_paused) {
+	                            var msg:* = getMessage(true);
+	                            if (msg == RESUME_MESSAGE || msg == ABORT_MESSAGE) {
+	                                if (msg == RESUME_MESSAGE) {
+	                                    resume();
+	                                    return;
+	                                }
+	                            }
+	                        }
+	                    }
+	                    case ABORT_MESSAGE:
+	                    {
+	                        abort();
+	                        return;
+	                    }
+	
+	                    default:
+	                    {
+	                        return;
+	                    }
+	                }
+	            }
+	
+	            if (_fileDescriptor && !_loader)
+	                copyOrDownload();
+	
+	        } catch (error:Error) {
+	            sendError(error);
+	        }
     }
 
     protected function copyOrDownload():void {
@@ -235,7 +240,9 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
         _fs.writeBytes(_buf, 0, _buf.length);
     }
 
-    protected function destroy():void {
+    protected function abort():void {
+
+        clearInterval(_intervalId);
 
         try {
             if (_loader) {
@@ -247,8 +254,6 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
                 _fs.close();
                 _fs = null;
             }
-
-            clearInterval(_intervalId);
         }
         catch (error:Error) {
         }

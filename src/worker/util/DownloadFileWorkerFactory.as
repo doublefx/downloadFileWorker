@@ -16,7 +16,7 @@ public class DownloadFileWorkerFactory {
     private static var __cacheDir:File;
     private static var __initialized:Boolean = initialize();
 
-    public static function create(kind:String, bindTo:IDownloadFileWorkerUIBinder = null):IDownloadFileWorker {
+    public static function create(kind:String, bindTo:IDownloadFileWorkerUIBinder = null, ...decorators):IDownloadFileWorker {
         var fileDescriptor:DownloadFileDescriptor;
         var fileTarget:File;
         var downloader:IDownloadFileWorker;
@@ -42,6 +42,9 @@ public class DownloadFileWorkerFactory {
             default:
                 return null;
         }
+
+        for each (var clazz:Class in decorators)
+            downloader = new clazz(downloader);
 
         if (bindTo)
             bindTo.downloader = downloader;

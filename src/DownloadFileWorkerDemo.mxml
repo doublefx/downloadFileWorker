@@ -4,21 +4,22 @@
                        xmlns:component="component.*"
                        windowComplete="windowCompleteHandler(event)"
                        width="800" height="600"
-                       color="0x000000"
+                       color="0xFFFFFF"
                        backgroundColor="0x000000">
 
     <fx:Script><![CDATA[
         import mx.events.AIREvent;
 
         import worker.util.DownloadFileWorkerFactory;
+        import worker.util.DownloadFileWorkerTelemetryDecorator;
 
         private function windowCompleteHandler(event:AIREvent):void {
 
             // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges").
-            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexDownloaderUI);
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexDownloaderUI, DownloadFileWorkerTelemetryDecorator);
 
             // Create a DownloadFileWorker for file on a server without resuming capabilities (No "Accept-Ranges").
-            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI);
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI, DownloadFileWorkerTelemetryDecorator);
         }
         ]]></fx:Script>
 

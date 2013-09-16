@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+  Created by Frédéric THOMAS on 17/09/13.
+-->
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark">
+
+    <fx:Script><![CDATA[
+        import worker.util.IDownloadFileWorkerTelemetry;
+
+        private static const millisecondsPerDay:int = 1000 * 60 * 60 * 24;
+        private static const millisecondsPerHour:int = 1000 * 60 * 60;
+        private static const millisecondsPerMinute:int = 1000 * 60;
+        private static const millisecondsPerSecond:int = 1000;
+
+        [Bindable]
+        public var telemetry:IDownloadFileWorkerTelemetry;
+
+        private static function formatDuration(duration:Number):String {
+            var hours:uint = duration / millisecondsPerHour;
+            var minutes:uint = (duration - (hours * millisecondsPerHour)) / millisecondsPerMinute;
+            var seconds:uint = (duration - (hours * millisecondsPerHour) - (minutes * millisecondsPerMinute)) / millisecondsPerSecond;
+
+            return hours + " h " + minutes + " mn " + seconds + " s";
+        }
+        ]]></fx:Script>
+    <fx:Declarations>
+        <s:DateTimeFormatter id="dateTimeFormatter"
+                             dateTimePattern="h:mm:ss"/>
+    </fx:Declarations>
+
+    <s:Form>
+        <s:layout>
+            <s:VerticalLayout horizontalAlign="left"/>
+        </s:layout>
+        <s:FormItem id="startTimeItem" label="Started time: ">
+            <s:Label color="#ffffff" text="{telemetry.startTime ? dateTimeFormatter.format(telemetry.startTime) : '...'}"/>
+        </s:FormItem>
+        <s:FormItem id="endTimeItem" label="End time: ">
+            <s:Label text="{telemetry.endTime ? dateTimeFormatter.format(telemetry.endTime) : '...'}"/>
+        </s:FormItem>
+        <s:FormItem id="totalEffectiveTimeItem" label="Duration: ">
+            <s:Label text="{telemetry.totalEffectiveTime ? formatDuration(telemetry.totalEffectiveTime) : '...'}"/>
+        </s:FormItem>
+        <s:FormItem id="estimatedRemainingTimeItem" label="Remaining: ">
+            <s:Label text="{telemetry.totalEffectiveTime ? formatDuration(telemetry.estimatedRemainingTime) : '...'}"/>
+        </s:FormItem>
+    </s:Form>
+
+</s:VGroup>

@@ -2,14 +2,13 @@
  * User: Frédéric THOMAS Date: 16/09/13 Time: 20:23
  */
 package worker.util {
-import flash.errors.IllegalOperationError;
 import flash.events.Event;
 import flash.events.ProgressEvent;
 
 import worker.vo.DownloadFileDescriptor;
 
 [Bindable]
-public class DownloadFileWorkerTelemetryDecorator implements IDownloadFileWorker, IDownloadFileWorkerTelemetry{
+public class DownloadFileWorkerTelemetryDecorator implements IDownloadFileWorker, IDownloadFileWorkerTelemetry {
     private var _decorated:IDownloadFileWorker;
 
     private var _startTime:Date;
@@ -25,7 +24,7 @@ public class DownloadFileWorkerTelemetryDecorator implements IDownloadFileWorker
         _decorated = decorated;
 
         if (_decorated == null)
-            throw new IllegalOperationError("The decorated IDownloadFileWorker must not be null");
+            throw new ArgumentError("The decorated IDownloadFileWorker must not be null");
     }
 
     public function get startTime():Date {

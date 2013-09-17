@@ -33,7 +33,7 @@
             <s:VerticalLayout horizontalAlign="left"/>
         </s:layout>
         <s:FormItem id="startTimeItem" label="Started time: ">
-            <s:Label color="#ffffff" text="{telemetry.startTime ? dateTimeFormatter.format(telemetry.startTime) : '...'}"/>
+            <s:Label text="{telemetry.startTime ? dateTimeFormatter.format(telemetry.startTime) : '...'}"/>
         </s:FormItem>
         <s:FormItem id="endTimeItem" label="End time: ">
             <s:Label text="{telemetry.endTime ? dateTimeFormatter.format(telemetry.endTime) : '...'}"/>

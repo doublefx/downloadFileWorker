@@ -43,8 +43,8 @@ public class DownloadFileWorkerFactory {
                 return null;
         }
 
-        for each (var clazz:Class in decorators)
-            downloader = new clazz(downloader);
+        for each (var decorator:Class in decorators)
+            downloader = new decorator(downloader);
 
         if (bindTo)
             bindTo.downloader = downloader;

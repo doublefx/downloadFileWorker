@@ -56,19 +56,19 @@
         private function doPercentCompleted(bytesLoaded:Number, bytesTotal:Number):void {
             var percentComplete:Number = bytesLoaded * 100 / bytesTotal;
 
-            progressBarFormat.fractionalDigits = downloader.fileDescriptor.progressPrecision;
+            progressBarFormatter.fractionalDigits = downloader.fileDescriptor.progressPrecision;
             progressBar.setProgress(percentComplete, 100);
 
-            _progressLabel = progressBarFormat.format(percentComplete) + "% complete";
-            _progressLabel += _telemetry ? " (" + speedFormat.format(_telemetry.numberOfBytesPerSecondAverage / 1000) + " Kb/s)" : "";
+            _progressLabel = progressBarFormatter.format(percentComplete) + "% complete";
+            _progressLabel += _telemetry ? " (" + speedFormatter.format(_telemetry.numberOfBytesPerSecondAverage / 1000) + " Kb/s)" : "";
         }
         ]]>
 	</fx:Script>
 
     <fx:Declarations>
-        <s:NumberFormatter id="progressBarFormat"
+        <s:NumberFormatter id="progressBarFormatter"
                            fractionalDigits="0"/>
-        <s:NumberFormatter id="speedFormat"
+        <s:NumberFormatter id="speedFormatter"
                            fractionalDigits="2"/>
     </fx:Declarations>
 

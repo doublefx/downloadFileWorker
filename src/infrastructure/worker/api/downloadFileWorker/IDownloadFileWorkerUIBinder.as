@@ -1,4 +1,4 @@
-package worker.util {
+package infrastructure.worker.api.downloadFileWorker {
 import flash.events.ErrorEvent;
 import flash.events.Event;
 import flash.events.ProgressEvent;

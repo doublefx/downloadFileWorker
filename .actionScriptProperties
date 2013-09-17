@@ -20,7 +20,7 @@
   </applications>
   <modules/>
   <workers managerFilePath="src/WorkerManager.as">
-    <worker embed="true" path="src/worker/DownloadFileWorker.as"/>
+    <worker embed="true" path="src/infrastructure/worker/impl/downloadFileWorker/DownloadFileWorker.as"/>
   </workers>
   <buildCSSFiles/>
   <flashCatalyst validateFlashCatalystCompatibility="false"/>

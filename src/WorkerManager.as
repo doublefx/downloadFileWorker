@@ -6,19 +6,27 @@
  *******************************************************************************************************************************************/
 
 package {
-
-import flash.utils.ByteArray;
-
-public class WorkerManager {
-
-
-    [Embed(source="../workerswfs/worker/DownloadFileWorker.swf", mimeType="application/octet-stream")]
-    private static var worker_DownloadFileWorker_ByteClass:Class;
-
-    public static function get worker_DownloadFileWorker():ByteArray {
-        return new worker_DownloadFileWorker_ByteClass();
-    }
-
-
-}
+	
+	import flash.utils.ByteArray;
+	
+	public class WorkerManager {
+		
+		
+		[Embed(source="../workerswfs/worker/DownloadFileWorker.swf", mimeType="application/octet-stream")]
+		private static var worker_DownloadFileWorker_ByteClass:Class;
+		
+		[Embed(source="../workerswfs/infrastructure/worker/impl/downloadFileWorker/DownloadFileWorker.swf", mimeType="application/octet-stream")]
+		private static var infrastructure_worker_impl_downloadFileWorker_DownloadFileWorker_ByteClass:Class;
+		
+		public static function get worker_DownloadFileWorker():ByteArray {
+			return new worker_DownloadFileWorker_ByteClass();
+		}
+		
+		public static function get infrastructure_worker_impl_downloadFileWorker_DownloadFileWorker():ByteArray
+		{
+			return new infrastructure_worker_impl_downloadFileWorker_DownloadFileWorker_ByteClass();
+		}
+		
+		
+	}
 }

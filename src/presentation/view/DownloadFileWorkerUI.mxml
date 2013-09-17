@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
          xmlns:s="library://ns.adobe.com/flex/spark"
-         xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="component.*"
-         implements="worker.util.IDownloadFileWorkerUIBinder"
+         xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:component="presentation.view.*"
+         implements="infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerUIBinder"
          enabled="false">
 
     <fx:Script>
 		<![CDATA[
-        import mx.controls.Alert;
+        import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
+        import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerTelemetry;
 
-        import worker.util.IDownloadFileWorker;
-        import worker.util.IDownloadFileWorkerTelemetry;
+        import mx.controls.Alert;
 
         private var _downloader:IDownloadFileWorker;
 
@@ -103,7 +103,8 @@
         </s:VGroup>
 
         <component:DownloadFileWorkerTelemetryUI telemetry="{_telemetry}"
-                                                 visible="{_telemetry != null}" includeInLayout="{_telemetry != null}" width="200"/>
+                                                 visible="{_telemetry != null}" includeInLayout="{_telemetry != null}"
+                                                 width="200"/>
     </s:HGroup>
 
 </s:Group>

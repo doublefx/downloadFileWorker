@@ -1,4 +1,6 @@
-package worker.util {
+package infrastructure.worker.impl.downloadFileWorker.proxy {
+import domain.vo.DownloadFileDescriptor;
+
 import flash.events.ErrorEvent;
 import flash.events.Event;
 import flash.events.EventDispatcher;
@@ -8,7 +10,8 @@ import flash.system.Worker;
 import flash.system.WorkerDomain;
 import flash.system.WorkerState;
 
-import worker.vo.DownloadFileDescriptor;
+import infrastructure.worker.api.downloadFileWorker.AbstractDownloadFileWorker;
+import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
 
 [Bindable]
 public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloadFileWorker {
@@ -162,7 +165,7 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
 
     private function createWorker(workerName:String):void {
 
-        // Create the background worker
+        // Create the background infrastructure.worker
         _worker = WorkerDomain.current.createWorker(WorkerManager.worker_DownloadFileWorker, true);
 
         _worker.setSharedProperty("workerName", workerName);

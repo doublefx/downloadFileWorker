@@ -1,9 +1,12 @@
-package worker.util {
+package infrastructure.worker.api.downloadFileWorker {
+import domain.vo.DownloadFileDescriptor;
+
 import flash.events.Event;
 import flash.system.MessageChannel;
 import flash.system.Worker;
 
-import worker.vo.DownloadFileDescriptor;
+import infrastructure.worker.api.AbstractWorker;
+import infrastructure.worker.impl.downloadFileWorker.util.RegisterUtil;
 
 public class AbstractDownloadFileWorker extends AbstractWorker {
 
@@ -14,9 +17,9 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     public static const ABORT_MESSAGE:String = "ABORT_MESSAGE";
 
     public static const RESUMABLE_STATUS:String = "RESUMABLE_STATUS";
-	
-	protected var hasMessage:Boolean;
-	
+
+    protected var hasMessage:Boolean;
+
     private var _commandChannel:MessageChannel;
     private var _statusChannel:MessageChannel;
     private var _progressChannel:MessageChannel;
@@ -29,23 +32,23 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
 
     override protected function initialize():void {
 
-        DownloadFileWorkerRegisterUtil.registerClassAliases();
+        RegisterUtil.registerClassAliases();
 
         workerName = Worker.current.getSharedProperty("workerName");
 
         // Get the MessageChannel objects to use for communicating between workers
-        // These are for sending messages to the parent worker
+        // These are for sending messages to the parent infrastructure.worker
         _progressChannel = Worker.current.getSharedProperty(workerName + "_progressChannel") as MessageChannel;
         _errorChannel = Worker.current.getSharedProperty(workerName + "_errorChannel") as MessageChannel;
         _resultChannel = Worker.current.getSharedProperty(workerName + "_resultChannel") as MessageChannel;
         _statusChannel = Worker.current.getSharedProperty(workerName + "_statusChannel") as MessageChannel;
-        // This one is for receiving messages from the parent worker
+        // This one is for receiving messages from the parent infrastructure.worker
         _commandChannel = Worker.current.getSharedProperty(workerName + "_commandChannel") as MessageChannel;
         _commandChannel.addEventListener(Event.CHANNEL_MESSAGE, handleCommandMessage);
     }
 
     protected function handleCommandMessage(event:Event):void {
-		hasMessage = _commandChannel.messageAvailable;
+        hasMessage = _commandChannel.messageAvailable;
     }
 
     protected function getMessage(waitFor:Boolean = false):* {

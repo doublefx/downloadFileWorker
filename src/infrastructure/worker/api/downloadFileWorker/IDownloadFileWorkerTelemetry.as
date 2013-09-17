@@ -1,4 +1,4 @@
-package worker.util {
+package infrastructure.worker.api.downloadFileWorker {
 
 [Bindable]
 public interface IDownloadFileWorkerTelemetry {

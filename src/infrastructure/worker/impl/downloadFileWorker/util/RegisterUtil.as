@@ -1,10 +1,10 @@
-package worker.util {
+package infrastructure.worker.impl.downloadFileWorker.util {
+import domain.vo.DownloadFileDescriptor;
+
 import flash.errors.IOError;
 import flash.net.registerClassAlias;
 
-import worker.vo.DownloadFileDescriptor;
-
-public class DownloadFileWorkerRegisterUtil {
+public class RegisterUtil {
     public static function registerClassAliases():void {
         // Register our classes we are serializing
         registerClassAlias("Error", Error);
@@ -13,7 +13,7 @@ public class DownloadFileWorkerRegisterUtil {
         registerClassAlias("TypeError", TypeError);
         registerClassAlias("SecurityError", SecurityError);
         registerClassAlias("flash.errors.IOError", IOError);
-        registerClassAlias("worker.vo.DownloadFileDescriptor", DownloadFileDescriptor);
+        registerClassAlias("domain.vo.DownloadFileDescriptor", DownloadFileDescriptor);
     }
 }
 }

@@ -1,4 +1,6 @@
-package worker {
+package infrastructure.worker.impl.downloadFileWorker {
+import domain.vo.DownloadFileDescriptor;
+
 import flash.events.ErrorEvent;
 import flash.events.Event;
 import flash.events.HTTPStatusEvent;
@@ -16,8 +18,7 @@ import flash.utils.ByteArray;
 import flash.utils.clearInterval;
 import flash.utils.setInterval;
 
-import worker.util.AbstractDownloadFileWorker;
-import worker.vo.DownloadFileDescriptor;
+import infrastructure.worker.api.downloadFileWorker.AbstractDownloadFileWorker;
 
 public class DownloadFileWorker extends AbstractDownloadFileWorker {
 
@@ -34,58 +35,58 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
     private var _intervalId:uint;
 
     function DownloadFileWorker():void {
-		super(this);
+        super(this);
     }
 
     override protected function handleCommandMessage(event:Event):void {
         super.handleCommandMessage(event);
 
-		if (hasMessage)
-	        try {
-	            var message:* = getMessage();
-	
-	            if (!_loader && message is Array && message.length == 2 && message[0] == DOWNLOAD_MESSAGE && message[1] is DownloadFileDescriptor) {
-	                _fileDescriptor = message[1] as DownloadFileDescriptor;
-	            } else {
-	
-	                switch (message) {
-	                    case USE_CACHE_MESSAGE:
-	                    {
-	                        _useCache = getMessage();
-	                        break;
-	                    }
-	                    case PAUSE_MESSAGE:
-	                    {
-	                        pause();
-	                        while (_paused) {
-	                            var msg:* = getMessage(true);
-	                            if (msg == RESUME_MESSAGE || msg == ABORT_MESSAGE) {
-	                                if (msg == RESUME_MESSAGE) {
-	                                    resume();
-	                                    return;
-	                                }
-	                            }
-	                        }
-	                    }
-	                    case ABORT_MESSAGE:
-	                    {
-	                        abort();
-	                        return;
-	                    }
-	
-	                    default:
-	                    {
-	                        return;
-	                    }
-	                }
-	            }
-	
-	            if (_fileDescriptor && !_loader)
-	                copyOrDownload();
-	
-	        } catch (error:Error) {
-	            sendError(error);
-	        }
+        if (hasMessage)
+            try {
+                var message:* = getMessage();
+
+                if (!_loader && message is Array && message.length == 2 && message[0] == DOWNLOAD_MESSAGE && message[1] is DownloadFileDescriptor) {
+                    _fileDescriptor = message[1] as DownloadFileDescriptor;
+                } else {
+
+                    switch (message) {
+                        case USE_CACHE_MESSAGE:
+                        {
+                            _useCache = getMessage();
+                            break;
+                        }
+                        case PAUSE_MESSAGE:
+                        {
+                            pause();
+                            while (_paused) {
+                                var msg:* = getMessage(true);
+                                if (msg == RESUME_MESSAGE || msg == ABORT_MESSAGE) {
+                                    if (msg == RESUME_MESSAGE) {
+                                        resume();
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                        case ABORT_MESSAGE:
+                        {
+                            abort();
+                            return;
+                        }
+
+                        default:
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                if (_fileDescriptor && !_loader)
+                    copyOrDownload();
+
+            } catch (error:Error) {
+                sendError(error);
+            }
     }
 
     protected function copyOrDownload():void {

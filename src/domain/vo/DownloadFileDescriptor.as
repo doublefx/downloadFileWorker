@@ -1,4 +1,4 @@
-package worker.vo {
+package domain.vo {
 [Bindable]
 public class DownloadFileDescriptor {
     public var fileUrl:String;

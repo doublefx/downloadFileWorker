@@ -1,7 +1,7 @@
-package worker.util {
-import flash.events.IEventDispatcher;
+package infrastructure.worker.api.downloadFileWorker {
+import domain.vo.DownloadFileDescriptor;
 
-import worker.vo.DownloadFileDescriptor;
+import flash.events.IEventDispatcher;
 
 [Bindable]
 public interface IDownloadFileWorker extends IEventDispatcher {

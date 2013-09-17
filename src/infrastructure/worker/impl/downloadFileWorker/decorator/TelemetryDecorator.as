@@ -1,14 +1,17 @@
 /**
  * User: Frédéric THOMAS Date: 16/09/13 Time: 20:23
  */
-package worker.util {
+package infrastructure.worker.impl.downloadFileWorker.decorator {
+import domain.vo.DownloadFileDescriptor;
+
 import flash.events.Event;
 import flash.events.ProgressEvent;
 
-import worker.vo.DownloadFileDescriptor;
+import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
+import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerTelemetry;
 
 [Bindable]
-public class DownloadFileWorkerTelemetryDecorator implements IDownloadFileWorker, IDownloadFileWorkerTelemetry {
+public class TelemetryDecorator implements IDownloadFileWorker, IDownloadFileWorkerTelemetry {
     private var _decorated:IDownloadFileWorker;
 
     private var _startTime:Date;
@@ -20,7 +23,7 @@ public class DownloadFileWorkerTelemetryDecorator implements IDownloadFileWorker
     private var _midStartTime:Date;
     private var _midMilliseconds:Number = 0;
 
-    public function DownloadFileWorkerTelemetryDecorator(decorated:IDownloadFileWorker) {
+    public function TelemetryDecorator(decorated:IDownloadFileWorker) {
         _decorated = decorated;
 
         if (_decorated == null)

@@ -1,4 +1,4 @@
-package worker.util {
+package infrastructure.worker.api {
 import flash.display.Sprite;
 import flash.errors.IllegalOperationError;
 
@@ -10,7 +10,7 @@ public class AbstractWorker extends Sprite {
         super();
 
         if (protectedConstructor != this)
-			throw new TypeError("Error #1007: Instantiation attempted on a non-constructor.", 1007);
+            throw new TypeError("Error #1007: Instantiation attempted on a non-constructor.", 1007);
 
         initialize();
     }

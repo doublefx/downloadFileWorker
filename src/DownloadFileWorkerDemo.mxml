@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
                        xmlns:s="library://ns.adobe.com/flex/spark"
-                       xmlns:component="component.*"
+                       xmlns:component="presentation.view.*"
                        windowComplete="windowCompleteHandler(event)"
                        width="800" height="600"
                        color="0xFFFFFF"
                        backgroundColor="0x000000">
 
     <fx:Script><![CDATA[
-        import mx.events.AIREvent;
+        import infrastructure.worker.impl.downloadFileWorker.decorator.TelemetryDecorator;
+        import infrastructure.worker.impl.downloadFileWorker.factory.DownloadFileWorkerFactory;
 
-        import worker.util.DownloadFileWorkerFactory;
-        import worker.util.DownloadFileWorkerTelemetryDecorator;
+        import mx.events.AIREvent;
 
         private function windowCompleteHandler(event:AIREvent):void {
 
             // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges").
-            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexDownloaderUI, DownloadFileWorkerTelemetryDecorator);
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexDownloaderUI, [TelemetryDecorator]);
 
             // Create a DownloadFileWorker for file on a server without resuming capabilities (No "Accept-Ranges").
-            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI, DownloadFileWorkerTelemetryDecorator);
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI, [TelemetryDecorator]);
         }
         ]]></fx:Script>
 

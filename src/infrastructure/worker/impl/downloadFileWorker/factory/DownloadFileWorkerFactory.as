@@ -1,7 +1,12 @@
-package worker.util {
+package infrastructure.worker.impl.downloadFileWorker.factory {
+import domain.vo.DownloadFileDescriptor;
+
 import flash.filesystem.File;
 
-import worker.vo.DownloadFileDescriptor;
+import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
+import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerUIBinder;
+import infrastructure.worker.impl.downloadFileWorker.proxy.DownloadFileWorkerProxy;
+import infrastructure.worker.impl.downloadFileWorker.util.RegisterUtil;
 
 public class DownloadFileWorkerFactory {
     public static const FLEX_SDK:String = "FLEX_SDK";
@@ -56,7 +61,7 @@ public class DownloadFileWorkerFactory {
     }
 
     private static function initialize():Boolean {
-        DownloadFileWorkerRegisterUtil.registerClassAliases();
+        RegisterUtil.registerClassAliases();
         createCache();
 
         return true;

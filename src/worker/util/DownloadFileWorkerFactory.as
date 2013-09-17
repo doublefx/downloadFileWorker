@@ -43,6 +43,9 @@ public class DownloadFileWorkerFactory {
                 return null;
         }
 
+        if (decorators.length && decorators[0] is Array)
+            decorators = decorators[0];
+
         for each (var decorator:Class in decorators)
             downloader = new decorator(downloader);
 

@@ -9,6 +9,7 @@ import flash.events.ProgressEvent;
 
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerTelemetry;
+import infrastructure.worker.impl.downloadFileWorker.util.db.Registry;
 
 [Bindable]
 public class TelemetryDecorator implements IDownloadFileWorker, IDownloadFileWorkerTelemetry {
@@ -16,12 +17,13 @@ public class TelemetryDecorator implements IDownloadFileWorker, IDownloadFileWor
 
     private var _startTime:Date;
     private var _endTime:Date;
-    private var _totalTime:Number;
-    private var _totalEffectiveTime:Number;
-    private var _estimatedRemainingTime:Number;
-    private var _numberOfBytesPerSecondAverage:Number;
+    private var _totalTime:Number = 0;
+    private var _totalEffectiveTime:Number = 0;
+    private var _estimatedRemainingTime:Number = 0;
+    private var _numberOfBytesPerSecondAverage:Number = 0;
     private var _midStartTime:Date;
     private var _midMilliseconds:Number = 0;
+    private var _alreadyFlushedBytes:Number = 0;
 
     public function TelemetryDecorator(decorated:IDownloadFileWorker) {
         _decorated = decorated;
@@ -81,6 +83,11 @@ public class TelemetryDecorator implements IDownloadFileWorker, IDownloadFileWor
     public function start():void {
         startTime = new Date();
         addEventHandlers();
+
+        var fd:DownloadFileDescriptor = new DownloadFileDescriptor(fileDescriptor.fileUrl, fileDescriptor.fileTargetPath);
+        Registry.load(fd);
+        _alreadyFlushedBytes = fd.bytesLoaded;
+
 
         _decorated.start();
     }
@@ -173,8 +180,8 @@ public class TelemetryDecorator implements IDownloadFileWorker, IDownloadFileWor
 
         totalTime = now.getTime() - _startTime.getTime();
         totalEffectiveTime = _totalTime - _midMilliseconds;
-        numberOfBytesPerSecondAverage = fileDescriptor.bytesLoaded / _totalEffectiveTime * 1000;
-        estimatedRemainingTime = (fileDescriptor.bytesTotal - fileDescriptor.bytesLoaded) / _numberOfBytesPerSecondAverage * 1000;
+        numberOfBytesPerSecondAverage = (fileDescriptor.bytesLoaded - _alreadyFlushedBytes) / _totalEffectiveTime * 1000;
+        estimatedRemainingTime = (fileDescriptor.bytesTotal - fileDescriptor.bytesLoaded + _alreadyFlushedBytes) / _numberOfBytesPerSecondAverage * 1000;
     }
 }
 }

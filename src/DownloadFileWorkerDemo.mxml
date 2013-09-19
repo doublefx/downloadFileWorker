@@ -3,7 +3,7 @@
                        xmlns:s="library://ns.adobe.com/flex/spark"
                        xmlns:component="presentation.view.*"
                        windowComplete="windowCompleteHandler(event)"
-                       width="800" height="600"
+                       width="800" height="900"
                        color="0xFFFFFF"
                        backgroundColor="0x000000">
 
@@ -15,19 +15,34 @@
 
         private function windowCompleteHandler(event:AIREvent):void {
 
-            // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges").
-            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexDownloaderUI, [TelemetryDecorator]);
+            // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges") - large size.
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexSDK_DownloaderUI, [TelemetryDecorator]);
+
+            // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges") - small size.
+            DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.GETFOLDERSIZE, getFolderSize_DownloaderUI, [TelemetryDecorator]);
 
             // Create a DownloadFileWorker for file on a server without resuming capabilities (No "Accept-Ranges").
             DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI, [TelemetryDecorator]);
         }
         ]]></fx:Script>
 
+    <fx:Style>
+        @namespace s "library://ns.adobe.com/flex/spark";
+        @namespace component "presentation.view.*";
+        @namespace mx "library://ns.adobe.com/flex/mx";
+
+        mx|Alert {
+            color: #000000;
+        }
+    </fx:Style>
+
     <s:layout>
         <s:VerticalLayout horizontalAlign="center" verticalAlign="middle"/>
     </s:layout>
 
-    <component:DownloadFileWorkerUI id="flexDownloaderUI"/>
+    <component:DownloadFileWorkerUI id="flexSDK_DownloaderUI"/>
+    <s:Rect height="50"/>
+    <component:DownloadFileWorkerUI id="getFolderSize_DownloaderUI"/>
     <s:Rect height="50"/>
     <component:DownloadFileWorkerUI id="utorrentDownloaderUI"/>
 

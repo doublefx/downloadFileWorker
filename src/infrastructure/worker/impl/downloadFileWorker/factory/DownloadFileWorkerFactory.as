@@ -7,15 +7,21 @@ import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerUIBinder;
 import infrastructure.worker.impl.downloadFileWorker.proxy.DownloadFileWorkerProxy;
 import infrastructure.worker.impl.downloadFileWorker.util.RegisterUtil;
+import infrastructure.worker.impl.downloadFileWorker.util.db.Registry;
 
 public class DownloadFileWorkerFactory {
+    public static const DATABASE_NAME:String = "DB.db";
+
     public static const FLEX_SDK:String = "FLEX_SDK";
+    public static const GETFOLDERSIZE:String = "GETFOLDERSIZE";
     public static const UTORRENT:String = "UTORRENT";
 
     private static const FLEX_SDK_URL:String = "http://www.motorlogy.com/apache/flex/4.10.0/binaries/apache-flex-sdk-4.10.0-bin.zip";
+    private static const GETFOLDERSIZE_URL:String = "http://www.thummerer-software-design.de/download/GetFoldersize.zip";
     private static const UTORRENT_URL:String = "http://download-new.utorrent.com/endpoint/utorrent/os/windows/track/stable/";
 
     private static const FLEX_SDK_FILE_TARGET:String = "flexSDK_4.10.zip";
+    private static const GETFOLDERSIZE_FILE_TARGET:String = "GetFoldersize.zip";
     private static const UTORRENT_FILE_TARGET:String = "utorrent.exe";
 
     private static var __cacheDir:File;
@@ -34,6 +40,14 @@ public class DownloadFileWorkerFactory {
                 downloader = bindTo ?
                         new DownloadFileWorkerProxy(FLEX_SDK, fileDescriptor, bindTo.onProgress, bindTo.onError, bindTo.onCompleted) :
                         new DownloadFileWorkerProxy(FLEX_SDK, fileDescriptor);
+                break;
+
+            case GETFOLDERSIZE:
+                fileTarget = __cacheDir.resolvePath(GETFOLDERSIZE_FILE_TARGET);
+                fileDescriptor = new DownloadFileDescriptor(GETFOLDERSIZE_URL, fileTarget.nativePath, 1);
+                downloader = bindTo ?
+                        new DownloadFileWorkerProxy(GETFOLDERSIZE, fileDescriptor, bindTo.onProgress, bindTo.onError, bindTo.onCompleted) :
+                        new DownloadFileWorkerProxy(GETFOLDERSIZE, fileDescriptor);
                 break;
 
             case UTORRENT:
@@ -61,6 +75,10 @@ public class DownloadFileWorkerFactory {
     }
 
     private static function initialize():Boolean {
+        // Initialize the Registry and the DownloadFileWorkerProxy to use the application DataBase.
+        DownloadFileWorkerProxy.dbPath = File.applicationStorageDirectory.resolvePath(DATABASE_NAME).nativePath;
+        Registry.initialize(DownloadFileWorkerProxy.dbPath);
+
         RegisterUtil.registerClassAliases();
         createCache();
 

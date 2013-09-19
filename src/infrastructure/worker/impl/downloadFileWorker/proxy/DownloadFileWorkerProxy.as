@@ -16,6 +16,8 @@ import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
 [Bindable]
 public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloadFileWorker {
 
+    public static var dbPath:String;
+
     private var _worker:Worker;
     private var _statusChannel:MessageChannel;
     private var _commandChannel:MessageChannel;
@@ -51,7 +53,6 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
             case WorkerState.RUNNING:
             {
                 isRunning = true;
-
                 addEventListeners();
 
                 _commandChannel.send([AbstractDownloadFileWorker.DOWNLOAD_MESSAGE, _downloadFileDescriptor]);
@@ -62,7 +63,6 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
             case WorkerState.TERMINATED:
             {
                 isRunning = false;
-
                 removeListeners();
 
                 break;
@@ -72,8 +72,20 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
 
     private function onStatusWrapper(event:Event):void {
         var status:String = _statusChannel.receive();
-        if (status == AbstractDownloadFileWorker.RESUMABLE_STATUS)
-            isResumable = true;
+
+        switch (status) {
+            case AbstractDownloadFileWorker.RESUMABLE_STATUS:
+            {
+                isResumable = true;
+                break;
+            }
+
+            case AbstractDownloadFileWorker.ABORTED_STATUS:
+            {
+                _worker.terminate();
+                break;
+            }
+        }
     }
 
     private function onProgressWrapper(event:Event):void {
@@ -105,7 +117,7 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
 
         if (_worker.state != WorkerState.TERMINATED) {
             _commandChannel.send(AbstractDownloadFileWorker.ABORT_MESSAGE, 0);
-            b = _worker.terminate();
+            //b = _worker.terminate(); // Can't stand here because File doesn't work and doesn't catch runtime errors.
         }
         return b;
     }
@@ -166,9 +178,10 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
     private function createWorker(workerName:String):void {
 
         // Create the background infrastructure.worker
-        _worker = WorkerDomain.current.createWorker(WorkerManager.worker_DownloadFileWorker, true);
+        _worker = WorkerDomain.current.createWorker(WorkerManager.infrastructure_worker_impl_downloadFileWorker_DownloadFileWorker, true);
 
         _worker.setSharedProperty("workerName", workerName);
+        _worker.setSharedProperty("dbPath", dbPath);
 
         // Set up the MessageChannels for communication between workers
         _commandChannel = Worker.current.createMessageChannel(_worker);

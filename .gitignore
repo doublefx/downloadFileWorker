@@ -1,2 +1,2 @@
-workerswfs/worker
+workerswfs/**.*
 bin-debug/**.*

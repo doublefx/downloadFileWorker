@@ -19,6 +19,7 @@ import flash.utils.clearInterval;
 import flash.utils.setInterval;
 
 import infrastructure.worker.api.downloadFileWorker.AbstractDownloadFileWorker;
+import infrastructure.worker.impl.downloadFileWorker.util.db.Registry;
 
 public class DownloadFileWorker extends AbstractDownloadFileWorker {
 
@@ -27,12 +28,13 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
     protected var _loader:URLStream = null;
     protected var _req:URLRequest = null;
     protected var _oldPercentLoaded:Number = 0;
-
-    private var _fs:FileStream;
-    private var _buf:ByteArray;
-    private var _offs:Number;
-    private var _paused:Boolean;
-    private var _intervalId:uint;
+    protected var _hasResumingCapabilities:Boolean;
+    protected var _fs:FileStream;
+    protected var _buf:ByteArray;
+    protected var _offs:Number = 0;
+    protected var _paused:Boolean;
+    protected var _intervalId:uint;
+    protected var _flushedBytes:Number = 0;
 
     function DownloadFileWorker():void {
         super(this);
@@ -60,13 +62,15 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
                             pause();
                             while (_paused) {
                                 var msg:* = getMessage(true);
-                                if (msg == RESUME_MESSAGE || msg == ABORT_MESSAGE) {
-                                    if (msg == RESUME_MESSAGE) {
-                                        resume();
-                                        return;
-                                    }
+                                if (msg == RESUME_MESSAGE) {
+                                    resume();
+                                    return;
+                                } else if (msg == ABORT_MESSAGE) {
+                                    abort();
+                                    return;
                                 }
                             }
+                            break;
                         }
                         case ABORT_MESSAGE:
                         {
@@ -85,6 +89,7 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
                     copyOrDownload();
 
             } catch (error:Error) {
+                Registry.remove(_fileDescriptor);
                 sendError(error);
             }
     }
@@ -96,11 +101,17 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
         if (fileTarget.exists) {
             if (!_useCache) {
                 fileTarget.deleteFile();
+                Registry.remove(_fileDescriptor);
             } else {
                 _fileDescriptor.bytesLoaded = _fileDescriptor.bytesTotal = fileTarget.size;
+                Registry.load(_fileDescriptor);
+
                 sendProgress(_fileDescriptor);
-                sendResult(_fileDescriptor);
-                return;
+
+                if (_fileDescriptor.bytesLoaded == _fileDescriptor.bytesTotal) {
+                    sendResult(_fileDescriptor);
+                    return;
+                }
             }
         }
 
@@ -125,11 +136,16 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
     protected function download(url:String):void {
         _loader = new URLStream();
         _req = new URLRequest(url + "?" + new Date().getTime());
+
+        if (_fileDescriptor.bytesLoaded > 0) {
+            _offs = _flushedBytes = _fileDescriptor.bytesLoaded;
+            _req.requestHeaders = [new URLRequestHeader("Range", "bytes=" + _offs + "-")];
+        }
+
         //Wait for 5 minutes before aborting download attempt.  Adobe download sites as well as some Apache mirrors are extremely slow.
         _req.idleTimeout = 300000;
 
         _buf = new ByteArray();
-        _offs = 0;
         _paused = false;
 
         _loader.addEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, onDownloadResponseStatus);
@@ -143,25 +159,7 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
 
         _loader.load(_req);
 
-        _intervalId = setInterval(partialLoad, 500);
-    }
-
-    protected function partialLoad():void {
-
-        try {
-            var len:uint = _loader.bytesAvailable;
-
-            if (len) {
-                _loader.readBytes(_buf, _offs, len);
-                _offs += len;
-
-                if (_paused) {
-                    _loader.close();
-                    clearInterval(_intervalId);
-                }
-            }
-        } catch (error:Error) {
-        }
+        _intervalId = setInterval(flushPartialDownloadToMemory, 500);
     }
 
     protected function pause():void {
@@ -172,16 +170,17 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
         _req.requestHeaders = [new URLRequestHeader("Range", "bytes=" + _offs + "-")];
         _loader.load(_req);
         _paused = false;
-        _intervalId = setInterval(partialLoad, 500);
+        _intervalId = setInterval(flushPartialDownloadToMemory, 500);
     }
 
     protected function onDownloadResponseStatus(event:HTTPStatusEvent):void {
         addEventListener(HTTPStatusEvent.HTTP_RESPONSE_STATUS, onDownloadResponseStatus);
         var header:URLRequestHeader;
 
-        if (event.status == 200)
+        if (event.status == 200 || event.status == 206)
             for each (header in event.responseHeaders) {
                 if (header.name == "Accept-Ranges" && header.value == "bytes") {
+                    _hasResumingCapabilities = true;
                     sendStatus(AbstractDownloadFileWorker.RESUMABLE_STATUS);
                     break
                 }
@@ -189,21 +188,10 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
     }
 
     protected function handleDownloadProgress(event:ProgressEvent):void {
-        if (isNaN(_fileDescriptor.bytesTotal)) {
+        if (_fileDescriptor.bytesTotal == 0) {
             _fileDescriptor.bytesTotal = event.bytesTotal;
         }
-        var percentLoaded:Number = Number(Number(_offs * 100 / _fileDescriptor.bytesTotal).toFixed(_fileDescriptor.progressPrecision));
-
-
-        // only send progress messages every user defined milestone
-        // with a minimum of half second of delay
-        // to avoid flooding the message channel
-        if (percentLoaded != _oldPercentLoaded) {
-            _oldPercentLoaded = percentLoaded;
-            _fileDescriptor.bytesLoaded = _offs;
-
-            sendProgress(_fileDescriptor);
-        }
+        sendProgressAtTick();
     }
 
     protected function handleDownloadError(event:ErrorEvent):void {
@@ -212,38 +200,30 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
 
     protected function handleDownloadComplete(event:Event):void {
         flushLastBytes();
+        sendProgressAtTick();
         writeFileTarget();
-
         sendResult(_fileDescriptor);
-    }
-
-    protected function flushLastBytes():void {
-        clearInterval(_intervalId);
-
-        while (_buf.length != _fileDescriptor.bytesTotal)
-            partialLoad();
-
-        _loader.close();
-
-        _fileDescriptor.bytesLoaded = _offs;
-        sendProgress(_fileDescriptor);
-    }
-
-    protected function writeFileTarget():void {
-        var fileTarget:File = new File(_fileDescriptor.fileTargetPath);
-
-        fileTarget.downloaded = true;
-        fileTarget.preventBackup = true;
-
-        _fs = new FileStream();
-        _fs.addEventListener(IOErrorEvent.IO_ERROR, handleDownloadError, false, 0, true);
-        _fs.open(fileTarget, FileMode.WRITE);
-        _fs.writeBytes(_buf, 0, _buf.length);
     }
 
     protected function abort():void {
 
         clearInterval(_intervalId);
+
+        var isDownloadCompleted:Boolean = _fileDescriptor.bytesLoaded == _fileDescriptor.bytesTotal;
+
+        if (isDownloadCompleted) {
+            Registry.remove(_fileDescriptor);
+        } else if (_hasResumingCapabilities && _paused) {
+            flushLastBytes();
+            sendProgressAtTick();
+            writeFileTarget();
+            Registry.save(_fileDescriptor);
+        } else {
+            var fileTarget:File = new File(_fileDescriptor.fileTargetPath);
+            if (fileTarget.exists)
+                fileTarget.deleteFile();
+            Registry.remove(_fileDescriptor);
+        }
 
         try {
             if (_loader) {
@@ -257,9 +237,78 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
             }
         }
         catch (error:Error) {
+            //trace("error: " + error.message);
         }
 
+        Registry.close();
         System.gc();
+
+        // Have to send an aborted messsage status to inform my parent Worker
+        // it can terminate me because of a bug working with file system.
+        sendStatus(AbstractDownloadFileWorker.ABORTED_STATUS);
+    }
+
+    protected function flushLastBytes():void {
+        clearInterval(_intervalId);
+
+        if (_buf.length != _fileDescriptor.bytesTotal)
+            flushPartialDownloadToMemory();
+
+        try {
+            _loader.close();
+        } catch (error:Error) {
+            //trace("error: " + error.message);
+        }
+    }
+
+    protected function sendProgressAtTick():void {
+        _fileDescriptor.bytesLoaded = _offs;
+        var percentLoaded:Number = Number(Number(_offs * 100 / _fileDescriptor.bytesTotal).toFixed(_fileDescriptor.progressPrecision));
+
+
+        // only send progress messages every
+        // progressPrecision milestone with a
+        // minimum of half second of delay
+        // to avoid flooding the message channel.
+        if (percentLoaded != _oldPercentLoaded) {
+            _oldPercentLoaded = percentLoaded;
+            _fileDescriptor.bytesLoaded = _offs;
+
+            //trace("progress: " + percentLoaded + " : " + _offs + " / " + _fileDescriptor.bytesTotal);
+
+            sendProgress(_fileDescriptor);
+        }
+    }
+
+    protected function flushPartialDownloadToMemory():void {
+
+        try {
+            var len:uint = _loader.bytesAvailable;
+
+            if (len) {
+                _loader.readBytes(_buf, _offs - _flushedBytes, len);
+                _offs += len;
+
+                if (_paused) {
+                    _loader.close();
+                    clearInterval(_intervalId);
+                }
+            }
+        } catch (error:Error) {
+            //trace("error: " + error.message);
+        }
+    }
+
+    protected function writeFileTarget():void {
+        var fileTarget:File = new File(_fileDescriptor.fileTargetPath);
+
+        fileTarget.downloaded = true;
+        fileTarget.preventBackup = true;
+
+        _fs = new FileStream();
+        _fs.addEventListener(IOErrorEvent.IO_ERROR, handleDownloadError, false, 0, true);
+        _fs.open(fileTarget, FileMode.APPEND);
+        _fs.writeBytes(_buf, 0, _buf.length);
     }
 }
 }

@@ -25,3 +25,12 @@ var downloader:IDownloadFileWorker = new DownloadFileWorkerProxy(id, fileDescrip
 
 You can then add event listeners to the downloader to receive ProgressEvent.PROGRESS, ErrorEvent.ERROR and
 Event.COMPLETE events through its IEventDispatcher Interface or use its IDownloadFileWorker Interface to interact with.
+
+Note: Can now keep resuming even if you restart the Demo using resume + terminate buttons, to keep tracking
+resuming downloads, it uses SQLite, see DownloadFileWorkerFactory to see how to set it, basically,
+it can be done in 2 lines:
+
+```ActionScript
+DownloadFileWorkerProxy.dbPath = File.applicationStorageDirectory.resolvePath(DATABASE_NAME).nativePath;
+Registry.initialize(DownloadFileWorkerProxy.dbPath);
+```

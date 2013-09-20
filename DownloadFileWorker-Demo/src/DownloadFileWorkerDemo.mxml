@@ -10,9 +10,10 @@
 
     <fx:Script><![CDATA[
         import infrastructure.worker.impl.downloadFileWorker.decorator.TelemetryDecorator;
-        import infrastructure.worker.impl.downloadFileWorker.factory.DownloadFileWorkerFactory;
 
         import mx.events.AIREvent;
+
+        import worker.factory.DownloadFileWorkerFactory;
 
         private function windowCompleteHandler(event:AIREvent):void {
             removeEventListener(AIREvent.WINDOW_COMPLETE, windowCompleteHandler);

@@ -1,2 +1,3 @@
 workerswfs/**.*
 bin-debug/**.*
+!*iml

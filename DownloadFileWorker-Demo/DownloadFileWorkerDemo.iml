@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="Flex" version="4">
+  <component name="FlexBuildConfigurationManager" active="DownloadFileWorkerDemo">
+    <configurations>
+      <configuration name="DownloadFileWorkerDemo" target-platform="Desktop" main-class="DownloadFileWorkerDemo" output-file="DownloadFileWorkerDemo.swf" output-folder="$MODULE_DIR$/bin-debug">
+        <dependencies>
+          <entries>
+            <entry module-name="DownloadFileWorkerLib" build-configuration-name="DownloadFileWorkerLib">
+              <dependency linkage="Merged" />
+            </entry>
+            <entry library-id="49a354a1-4170-4942-b775-2403ad1768e9">
+              <dependency linkage="Merged" />
+            </entry>
+            <entry module-name="DownloadFileWorkerDemo" build-configuration-name="DownloadFileWorker">
+              <dependency linkage="Loaded" />
+            </entry>
+          </entries>
+          <sdk name="4.10.0_FP1.8_AIR3.8_overlayed" />
+        </dependencies>
+        <compiler-options>
+          <map>
+            <entry key="compiler.locale" value="fr_FR" />
+          </map>
+        </compiler-options>
+        <packaging-air-desktop use-generated-descriptor="false" custom-descriptor-path="$MODULE_DIR$/src/DownloadFileWorkerDemo-app.xml" package-file-name="DownloadFileWorkerDemo" />
+        <packaging-android />
+        <packaging-ios />
+      </configuration>
+      <configuration name="DownloadFileWorker" target-platform="Desktop" main-class="worker.DownloadFileWorker" output-file="DownloadFileWorker.swf" output-folder="$MODULE_DIR$/workerswfs/worker" skip-build="true">
+        <dependencies>
+          <sdk name="4.10.0_FP1.8_AIR3.8_overlayed" />
+        </dependencies>
+        <compiler-options />
+        <packaging-air-desktop package-file-name="DownloadFileWorker" />
+        <packaging-android />
+        <packaging-ios />
+      </configuration>
+    </configurations>
+    <compiler-options />
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+    </content>
+    <orderEntry type="jdk" jdkName="4.10.0_FP1.8_AIR3.8_overlayed" jdkType="Flex SDK Type (new)" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library" exported="">
+      <library type="flex">
+        <properties id="49a354a1-4170-4942-b775-2403ad1768e9" />
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/libs" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/libs" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module" module-name="DownloadFileWorkerLib" exported="" />
+  </component>
+</module>
+

@@ -1,6 +1,7 @@
 package infrastructure.worker.api.downloadFileWorker {
 import domain.vo.DownloadFileDescriptor;
 
+import flash.desktop.NativeApplication;
 import flash.events.Event;
 import flash.system.MessageChannel;
 import flash.system.MessageChannelState;
@@ -19,7 +20,6 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     public static const ABORT_MESSAGE:String = "ABORT_MESSAGE";
 
     public static const RESUMABLE_STATUS:String = "RESUMABLE_STATUS";
-    public static const ABORTED_STATUS:String = "ABORTED_STATUS";
 
     protected var hasMessage:Boolean;
 
@@ -40,7 +40,7 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
         workerName = Worker.current.getSharedProperty("workerName");
         var dbPath:String = Worker.current.getSharedProperty("dbPath");
 
-        Registry.initialize(dbPath);
+        Registry.initialize(dbPath, NativeApplication.nativeApplication.applicationID + "[" + workerName + "]");
 
         // Get the MessageChannel objects to use for communicating between workers
         // These are for sending messages to the parent infrastructure.worker
@@ -54,6 +54,11 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 
     protected function handleCommandMessage(event:Event):void {
+        if (_commandChannel.state != MessageChannelState.OPEN) {
+            trace("Error: MessageChannel was " + _commandChannel.state + " while trying to execute command.");
+            return;
+        }
+
         hasMessage = _commandChannel.messageAvailable;
     }
 
@@ -62,7 +67,7 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 
     protected function sendStatus(status:String, queueLimit:int = -1):void {
-        if (!_statusChannel.state == MessageChannelState.OPEN) {
+        if (_statusChannel.state != MessageChannelState.OPEN) {
             trace("Error: MessageChannel was " + _statusChannel.state + " while trying to sendStatus " + status);
             return;
         }
@@ -71,7 +76,7 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 
     protected function sendProgress(fileDescriptor:DownloadFileDescriptor, queueLimit:int = -1):void {
-        if (!_progressChannel.state == MessageChannelState.OPEN) {
+        if (_progressChannel.state != MessageChannelState.OPEN) {
             trace("Error: MessageChannel was " + _progressChannel.state + " while trying to sendProgress " + fileDescriptor);
             return;
         }
@@ -80,7 +85,7 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 
     protected function sendError(error:Error, queueLimit:int = -1):void {
-        if (!_errorChannel.state == MessageChannelState.OPEN) {
+        if (_errorChannel.state != MessageChannelState.OPEN) {
             trace("Error: MessageChannel was " + _errorChannel.state + " while trying to sendError " + error);
             return;
         }
@@ -89,7 +94,7 @@ public class AbstractDownloadFileWorker extends AbstractWorker {
     }
 
     protected function sendResult(fileDescriptor:DownloadFileDescriptor, queueLimit:int = -1):void {
-        if (!_resultChannel.state == MessageChannelState.OPEN) {
+        if (_resultChannel.state != MessageChannelState.OPEN) {
             trace("Error: MessageChannel was " + _resultChannel.state + " while trying to sendResult " + fileDescriptor);
             return;
         }

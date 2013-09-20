@@ -242,10 +242,6 @@ public class DownloadFileWorker extends AbstractDownloadFileWorker {
 
         Registry.close();
         System.gc();
-
-        // Have to send an aborted messsage status to inform my parent Worker
-        // it can terminate me because of a bug working with file system.
-        sendStatus(AbstractDownloadFileWorker.ABORTED_STATUS);
     }
 
     protected function flushLastBytes():void {

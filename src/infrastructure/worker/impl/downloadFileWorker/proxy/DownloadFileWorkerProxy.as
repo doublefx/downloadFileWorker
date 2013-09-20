@@ -25,6 +25,8 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
     private var _errorChannel:MessageChannel;
     private var _resultChannel:MessageChannel;
 
+    private var _workerName:String;
+
     private var _onProgress:Function;
     private var _onError:Function;
     private var _onCompleted:Function;
@@ -39,12 +41,13 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
 
     public function DownloadFileWorkerProxy(workerName:String, downloadFileDescriptor:DownloadFileDescriptor, onProgress:Function = null, onError:Function = null, onCompleted:Function = null):void {
 
+        _workerName = workerName;
         _downloadFileDescriptor = downloadFileDescriptor;
         _onProgress = onProgress;
         _onError = onError;
         _onCompleted = onCompleted;
 
-        createWorker(workerName);
+        createWorker();
     }
 
     private function onStateChangedWrapper(event:Event):void {
@@ -79,12 +82,6 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
                 isResumable = true;
                 break;
             }
-
-            case AbstractDownloadFileWorker.ABORTED_STATUS:
-            {
-                _worker.terminate();
-                break;
-            }
         }
     }
 
@@ -113,13 +110,12 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
     }
 
     public function terminate():Boolean {
-        var b:Boolean = true;
 
-        if (_worker.state != WorkerState.TERMINATED) {
+        if (_worker.state == WorkerState.RUNNING) {
             _commandChannel.send(AbstractDownloadFileWorker.ABORT_MESSAGE, 0);
-            //b = _worker.terminate(); // Can't stand here because File doesn't work and doesn't catch runtime errors.
         }
-        return b;
+
+        return _worker.terminate();
     }
 
     public function pause():void {
@@ -175,36 +171,40 @@ public class DownloadFileWorkerProxy extends EventDispatcher implements IDownloa
         return _downloadFileDescriptor;
     }
 
-    private function createWorker(workerName:String):void {
+    public function get workerName():String {
+        return _workerName;
+    }
+
+    private function createWorker():void {
 
         // Create the background infrastructure.worker
         _worker = WorkerDomain.current.createWorker(WorkerManager.infrastructure_worker_impl_downloadFileWorker_DownloadFileWorker, true);
 
-        _worker.setSharedProperty("workerName", workerName);
+        _worker.setSharedProperty("workerName", _workerName);
         _worker.setSharedProperty("dbPath", dbPath);
 
         // Set up the MessageChannels for communication between workers
         _commandChannel = Worker.current.createMessageChannel(_worker);
-        _worker.setSharedProperty(workerName + "_commandChannel", _commandChannel);
+        _worker.setSharedProperty(_workerName + "_commandChannel", _commandChannel);
 
         // Set up listeners
         _worker.addEventListener(Event.WORKER_STATE, onStateChangedWrapper);
 
         _statusChannel = _worker.createMessageChannel(Worker.current);
         _statusChannel.addEventListener(Event.CHANNEL_MESSAGE, onStatusWrapper);
-        _worker.setSharedProperty(workerName + "_statusChannel", _statusChannel);
+        _worker.setSharedProperty(_workerName + "_statusChannel", _statusChannel);
 
         _progressChannel = _worker.createMessageChannel(Worker.current);
         _progressChannel.addEventListener(Event.CHANNEL_MESSAGE, onProgressWrapper);
-        _worker.setSharedProperty(workerName + "_progressChannel", _progressChannel);
+        _worker.setSharedProperty(_workerName + "_progressChannel", _progressChannel);
 
         _errorChannel = _worker.createMessageChannel(Worker.current);
         _errorChannel.addEventListener(Event.CHANNEL_MESSAGE, onErrorWrapper);
-        _worker.setSharedProperty(workerName + "_errorChannel", _errorChannel);
+        _worker.setSharedProperty(_workerName + "_errorChannel", _errorChannel);
 
         _resultChannel = _worker.createMessageChannel(Worker.current);
         _resultChannel.addEventListener(Event.CHANNEL_MESSAGE, onCompletedWrapper);
-        _worker.setSharedProperty(workerName + "_resultChannel", _resultChannel);
+        _worker.setSharedProperty(_workerName + "_resultChannel", _resultChannel);
     }
 
     private function addEventListeners():void {

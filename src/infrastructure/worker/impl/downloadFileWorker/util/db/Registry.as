@@ -11,8 +11,8 @@ public class Registry extends Database {
     private static var __initialized:Boolean;
 
 
-    public static function initialize(dbPath:String):void {
-        if (Database.connect(dbPath) && createDB())
+    public static function initialize(dbPath:String, connectionName:String):void {
+        if (Database.connect(dbPath, connectionName) && createDB())
             __initialized = true;
     }
 

@@ -8,22 +8,23 @@ public class Database {
 
     protected static var __dbPath:String;
     private static var __conn:SQLConnection;
+    private static var __connectionName:String;
 
-    public static function connect(dbPath:String, throwError:Boolean = false):Boolean {
+    public static function connect(dbPath:String, connectionName:String = null, throwError:Boolean = false):Boolean {
         var result:Boolean;
 
         if (!__conn) {
             __dbPath = dbPath;
-            trace("Connecting async DB: " + dbPath);
+            __connectionName = connectionName;
+            trace(connectionName + ": Connecting DB: " + dbPath);
             __conn = new SQLConnection();
 
-            // The database file is in the application storage directory
             var dbFile:File = new File(dbPath);
 
             try {
                 __conn.open(dbFile);
                 result = true;
-                trace("the database was created / opened successfully.");
+                trace(__connectionName + ": The database was created / opened successfully.");
             } catch (error:Error) {
                 if (throwError)
                     throw error;
@@ -40,6 +41,7 @@ public class Database {
         if (__conn) {
             __conn.close();
             __conn = null;
+            trace(__connectionName + ": The database was closed successfully.");
         }
     }
 
@@ -49,7 +51,7 @@ public class Database {
 
         try {
             stmt.execute();
-            trace("SQL: " + stmt.text + " has been executed successfully.");
+            trace(__connectionName + ": SQL: " + stmt.text + " has been executed successfully.");
 
             result = stmt.getResult();
 
@@ -65,7 +67,7 @@ public class Database {
     }
 
     protected static function traceError(fctName:String, error:Error, sql:String = null):void {
-        trace("function name: " + fctName + (sql != null) ? " SQL: " + sql : "");
+        trace(__connectionName + ": function name: " + fctName + (sql != null) ? " SQL: " + sql : "");
         trace("Error message:", error.message);
 
         if (error["details"])

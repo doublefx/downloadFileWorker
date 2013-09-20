@@ -3,6 +3,7 @@
                        xmlns:s="library://ns.adobe.com/flex/spark"
                        xmlns:component="presentation.view.*"
                        windowComplete="windowCompleteHandler(event)"
+                       closing="closingHandler(event)"
                        width="800" height="900"
                        color="0xFFFFFF"
                        backgroundColor="0x000000">
@@ -14,6 +15,7 @@
         import mx.events.AIREvent;
 
         private function windowCompleteHandler(event:AIREvent):void {
+            removeEventListener(AIREvent.WINDOW_COMPLETE, windowCompleteHandler);
 
             // Create a DownloadFileWorker for file on a server with resuming capabilities ("Accept-Ranges") - large size.
             DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.FLEX_SDK, flexSDK_DownloaderUI, [TelemetryDecorator]);
@@ -23,6 +25,12 @@
 
             // Create a DownloadFileWorker for file on a server without resuming capabilities (No "Accept-Ranges").
             DownloadFileWorkerFactory.create(DownloadFileWorkerFactory.UTORRENT, utorrentDownloaderUI, [TelemetryDecorator]);
+        }
+
+        private function closingHandler(event:Event):void {
+            removeEventListener(Event.CLOSING, closingHandler);
+
+            DownloadFileWorkerFactory.finalize();
         }
         ]]></fx:Script>
 

@@ -24,5 +24,7 @@ public interface IDownloadFileWorker extends IEventDispatcher {
     function get isPaused():Boolean;
 
     function get fileDescriptor():DownloadFileDescriptor;
+
+    function get workerName():String;
 }
 }

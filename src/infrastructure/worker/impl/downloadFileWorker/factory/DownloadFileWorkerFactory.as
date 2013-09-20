@@ -1,7 +1,9 @@
 package infrastructure.worker.impl.downloadFileWorker.factory {
 import domain.vo.DownloadFileDescriptor;
 
+import flash.desktop.NativeApplication;
 import flash.filesystem.File;
+import flash.utils.Dictionary;
 
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerUIBinder;
@@ -26,6 +28,8 @@ public class DownloadFileWorkerFactory {
 
     private static var __cacheDir:File;
     private static var __initialized:Boolean = initialize();
+
+    private static var __downloaders:Dictionary;
 
     public static function create(kind:String, bindTo:IDownloadFileWorkerUIBinder = null, ...decorators):IDownloadFileWorker {
         var fileDescriptor:DownloadFileDescriptor;
@@ -71,16 +75,20 @@ public class DownloadFileWorkerFactory {
         if (bindTo)
             bindTo.downloader = downloader;
 
+        __downloaders[downloader.workerName] = downloader;
+
         return downloader;
     }
 
     private static function initialize():Boolean {
         // Initialize the Registry and the DownloadFileWorkerProxy to use the application DataBase.
         DownloadFileWorkerProxy.dbPath = File.applicationStorageDirectory.resolvePath(DATABASE_NAME).nativePath;
-        Registry.initialize(DownloadFileWorkerProxy.dbPath);
+        Registry.initialize(DownloadFileWorkerProxy.dbPath, NativeApplication.nativeApplication.applicationID);
 
         RegisterUtil.registerClassAliases();
         createCache();
+
+        __downloaders = new Dictionary(true);
 
         return true;
     }
@@ -89,6 +97,14 @@ public class DownloadFileWorkerFactory {
         __cacheDir = File.desktopDirectory.resolvePath("cache");
         if (!__cacheDir.exists)
             __cacheDir.createDirectory();
+    }
+
+    public static function finalize():void {
+
+        for each (var downloader:IDownloadFileWorker in __downloaders)
+            downloader.terminate();
+
+        Registry.close();
     }
 }
 }

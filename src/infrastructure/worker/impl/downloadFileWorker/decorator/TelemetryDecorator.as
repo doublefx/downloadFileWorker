@@ -137,6 +137,10 @@ public class TelemetryDecorator implements IDownloadFileWorker, IDownloadFileWor
         return _decorated.fileDescriptor;
     }
 
+    public function get workerName():String {
+        return _decorated.workerName;
+    }
+
     public function addEventListener(type:String, listener:Function, useCapture:Boolean = false, priority:int = 0, useWeakReference:Boolean = false):void {
         _decorated.addEventListener(type, listener, useCapture, priority, useWeakReference);
     }

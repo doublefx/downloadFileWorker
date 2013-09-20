@@ -1,4 +1,4 @@
-package infrastructure.worker.impl.downloadFileWorker.util {
+package infrastructure.worker.util {
 import domain.vo.DownloadFileDescriptor;
 
 import flash.errors.IOError;

@@ -8,8 +8,8 @@ import flash.system.MessageChannelState;
 import flash.system.Worker;
 
 import infrastructure.worker.api.AbstractWorker;
-import infrastructure.worker.impl.downloadFileWorker.util.RegisterUtil;
-import infrastructure.worker.impl.downloadFileWorker.util.db.Registry;
+import infrastructure.worker.util.RegisterUtil;
+import infrastructure.worker.util.db.Registry;
 
 public class AbstractDownloadFileWorker extends AbstractWorker {
 

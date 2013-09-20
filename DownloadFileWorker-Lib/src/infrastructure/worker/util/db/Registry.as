@@ -1,4 +1,4 @@
-package infrastructure.worker.impl.downloadFileWorker.util.db {
+package infrastructure.worker.util.db {
 import domain.vo.DownloadFileDescriptor;
 
 import flash.data.SQLResult;

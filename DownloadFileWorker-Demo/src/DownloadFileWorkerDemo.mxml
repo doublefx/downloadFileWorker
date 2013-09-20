@@ -9,10 +9,9 @@
                        backgroundColor="0x000000">
 
     <fx:Script><![CDATA[
-        import infrastructure.worker.impl.downloadFileWorker.decorator.TelemetryDecorator;
-
         import mx.events.AIREvent;
 
+        import worker.decorator.TelemetryDecorator;
         import worker.factory.DownloadFileWorkerFactory;
 
         private function windowCompleteHandler(event:AIREvent):void {

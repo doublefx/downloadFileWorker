@@ -19,7 +19,7 @@ import flash.utils.clearInterval;
 import flash.utils.setInterval;
 
 import infrastructure.worker.api.downloadFileWorker.AbstractDownloadFileWorker;
-import infrastructure.worker.impl.downloadFileWorker.util.db.Registry;
+import infrastructure.worker.util.db.Registry;
 
 public class DownloadFileWorker extends AbstractDownloadFileWorker {
 

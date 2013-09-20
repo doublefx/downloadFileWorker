@@ -1,4 +1,4 @@
-package infrastructure.worker.impl.downloadFileWorker.util.db {
+package infrastructure.worker.util.db {
 import flash.data.SQLConnection;
 import flash.data.SQLResult;
 import flash.data.SQLStatement;

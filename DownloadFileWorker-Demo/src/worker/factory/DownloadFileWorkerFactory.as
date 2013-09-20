@@ -7,8 +7,8 @@ import flash.utils.Dictionary;
 
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorker;
 import infrastructure.worker.api.downloadFileWorker.IDownloadFileWorkerUIBinder;
-import infrastructure.worker.impl.downloadFileWorker.util.RegisterUtil;
-import infrastructure.worker.impl.downloadFileWorker.util.db.Registry;
+import infrastructure.worker.util.RegisterUtil;
+import infrastructure.worker.util.db.Registry;
 
 import worker.proxy.DownloadFileWorkerProxy;
 
